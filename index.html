@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>Holi Special 💖</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        :root { --vh: 100vh; }
+        html, body {
+            margin: 0; padding: 0;
+            height: 100%; width: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #000;
+            color: white;
+        }
+
+        /* Cinematic Background */
+        body {
+            height: var(--vh);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(-45deg, #ff0066, #ffcc00, #00f5ff, #8a2be2, #000);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .stage { display: none; opacity: 0; transform: translateY(20px); }
+        .stage.active { display: block; }
+
+        h1 { font-size: clamp(2rem, 8vw, 3rem); margin-bottom: 20px; }
+        .glow { text-shadow: 0 0 10px #fff, 0 0 20px #ff00ff; }
+
+        /* Card / Letter Style */
+        .card {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        /* Slideshow */
+        .slideshow-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .slide {
+            width: 80px; height: 110px;
+            border: 2px solid gold;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .slide img { width: 100%; height: 100%; object-fit: cover; }
+
+        button {
+            background: white;
+            color: black;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        button:active { transform: scale(0.95); }
+
+        /* Final Surprise Assets */
+        .ring-box {
+            width: 80px; height: 50px;
+            background: #600;
+            margin: 20px auto;
+            border-radius: 5px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(255,215,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div class="container">
+    <div class="stage active" id="stage1">
+        <h1 class="glow">🌸 Happy Holi 🌸</h1>
+        <p>A colorful surprise is waiting for you...</p>
+        <button onclick="nextStage()">Start Celebration 🎉</button>
+    </div>
+
+    <div class="stage" id="stage2">
+        <div class="card" id="letter"></div>
+        <button onclick="nextStage()">Continue 💖</button>
+    </div>
+
+    <div class="stage" id="stage3">
+        <h2 class="glow">Our Beautiful Moments</h2>
+        <div class="slideshow-container">
+            <div class="slide"><img src="photo1.jpg" alt="Memory 1"></div>
+            <div class="slide"><img src="photo2.jpg" alt="Memory 2"></div>
+            <div class="slide"><img src="photo3.jpg" alt="Memory 3"></div>
+            <div class="slide"><img src="photo4.jpg" alt="Memory 4"></div>
+        </div>
+        <p style="margin-top:15px;">Every color reminds me of you.</p>
+        <button onclick="nextStage()">Final Magic 💫</button>
+    </div>
+
+    <div class="stage" id="stage4">
+        <h1 class="glow">I Love You Forever 💍</h1>
+        <div class="card">
+            "You are the brightest color in my life. Today, tomorrow, and for all the Holis to come."
+        </div>
+        <div class="ring-box"></div>
+        <p>Touch the screen to celebrate! 🎨</p>
+    </div>
+</div>
+
+<script>
+    // --- CANVAS ENGINE ---
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    class Particle {
+        constructor(x, y, color) {
+            this.x = x; this.y = y;
+            this.color = color;
+            this.vx = (Math.random() - 0.5) * 8;
+            this.vy = (Math.random() - 0.5) * 8;
+            this.life = 1;
+            this.decay = Math.random() * 0.02 + 0.01;
+            this.size = Math.random() * 4 + 2;
+        }
+        draw() {
+            ctx.globalAlpha = this.life;
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        update() {
+            this.x += this.vx; this.y += this.vy;
+            this.vy += 0.05; // gravity
+            this.life -= this.decay;
+        }
+    }
+
+    function explode(x, y) {
+        const colors = ["#ff0066", "#ffcc00", "#00f5ff", "#8a2be2", "#ffffff"];
+        for (let i = 0; i < 40; i++) {
+            particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
+        }
+        if (navigator.vibrate) navigator.vibrate(50);
+    }
+
+    // Capture touch for manual colors
+    window.addEventListener("touchstart", (e) => {
+        explode(e.touches[0].clientX, e.touches[0].clientY);
+    });
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles = particles.filter(p => p.life > 0);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    // --- STAGE LOGIC ---
+    let current = 1;
+    function nextStage() {
+        const currentEl = document.getElementById("stage" + current);
+        gsap.to(currentEl, { opacity: 0, y: -20, duration: 0.5, onComplete: () => {
+            currentEl.style.display = "none";
+            current++;
+            const nextEl = document.getElementById("stage" + current);
+            if (nextEl) {
+                nextEl.style.display = "block";
+                gsap.to(nextEl, { opacity: 1, y: 0, duration: 0.8 });
+                handleStageActions(current);
+            }
+        }});
+    }
+
+    function handleStageActions(stageNum) {
+        explode(window.innerWidth / 2, window.innerHeight / 2);
+        
+        if (stageNum === 2) {
+            typeWriter();
+        }
+        if (stageNum === 4) {
+            // Auto-fireworks loop for the end
+            setInterval(() => {
+                explode(Math.random() * window.innerWidth, Math.random() * window.innerHeight);
+            }, 800);
+        }
+    }
+
+    // --- TYPEWRITER ---
+    const message = `On this Holi, I promise to color your life with happiness, protect your smile, and stay beside you forever. You are my most beautiful celebration. 💖`;
+    let i = 0;
+    function typeWriter() {
+        if (i < message.length) {
+            document.getElementById("letter").innerHTML += message.charAt(i);
+            i++;
+            setTimeout(typeWriter, 40);
+        }
+    }
+
+    // Fix for mobile 100vh
+    const setVh = () => {
+        document.documentElement.style.setProperty('--vh', `${window.innerHeight}px`);
+    };
+    window.addEventListener('resize', setVh);
+    setVh();
+
+</script>
+</body>
+</html>
